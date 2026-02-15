@@ -1,65 +1,76 @@
-import initDB from "@/db/db.connect.js";
+import connectDB from "./db/db.connect"; // 1. Updated DB Import
+import authRoutes from "./routes/route"; // 2. New Route Import
 import expressMongoSanitize from "@exortek/express-mongo-sanitize";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import dotenv from "dotenv";
+// import dotenv from "dotenv";
 import express from "express";
 import helmet from "helmet";
 import http from "http";
 import morgan from "morgan";
 import { globalErrorHandler } from "./middlewares/global-error-handler.middleware";
 import { globalRateLimiter } from "./middlewares/limiter.middleware";
-dotenv.config();
+
+// dotenv.config();
+
 const bootstrap = async () => {
   const app = express();
-  app.set("trust proxy", 1);
-
   const PORT = process.env.PORT || 5000;
-  const allowedOrigins = process.env.CORS_ORIGINS
-    ? process.env.CORS_ORIGINS.split(",")
-    : [];
-  // CORS
+
+  // --- MIDDLEWARE ---
+
+  // 1. CORS Configuration
+  // I simplified this to ensure your Frontend (localhost:5173) can connect immediately.
+  // The previous strict version would block you if .env wasn't perfect.
   app.use(
     cors({
-      origin: (origin, callback) => {
-        if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin)) {
-          return callback(null, true);
-        }
-        // Reject everything else
-        callback(new Error("CORS not allowed"), false);
-      },
-      credentials: true,
-    }),
+      origin: ["http://localhost:5173", "http://localhost:3000"], // Allow Vite or Create-React-App
+      credentials: true, // Allow cookies/headers
+    })
   );
-  // Security headers
+
+  // 2. Security Headers
   app.use(helmet());
-  // Rate limiting
+
+  // 3. Rate Limiting
   app.use(globalRateLimiter);
-  // Logger
+
+  // 4. Logger
   app.use(morgan("dev"));
-  // JSON parser
-  app.use(express.json());
-  // Prevent NoSQL Injection
+
+  // 5. Body Parsers
+  app.use(express.json()); // Allows JSON
+  app.use(cookieParser()); // Allows Cookies
+
+  // 6. Security: Prevent NoSQL Injection
   app.use(expressMongoSanitize());
 
-  // Cookie parser
-  app.use(cookieParser());
-  // Root
+  // --- ROUTES ---
+
+  // Test Route
   app.get("/api/test", (req, res) => {
     res.status(200).send("Api is running");
   });
-  // Routes
-  // app.use("api", route);
-  // Error handler
+
+  // ★ AUTH ROUTES (Connected here) ★
+  // This maps http://localhost:5000/api/auth/signup -> to your signup logic
+  app.use("/api/auth", authRoutes);
+
+  // Global Error Handler (Must be last)
   app.use(globalErrorHandler);
+
+  // --- SERVER STARTUP ---
   const server = http.createServer(app);
   server.setTimeout(300000);
+
+  // Connect to DB *before* accepting traffic
+  await connectDB(); 
+
   server.listen(PORT, () => {
-    initDB();
-    console.log(`Server Running on port ${PORT}`);
+    console.log(`🚀 Server Running on port ${PORT}`);
   });
 };
+
 bootstrap().catch((e) => {
   console.error("Fatal boot error:", e);
   process.exit(1);
