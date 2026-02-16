@@ -1,8 +1,10 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
-import User from '../models/user';
+import User from '../models/user'; // Ensure this path matches your file structure
+import generateTokenAndSetCookie from '../utils/generateToken';
 
-export const signup = async (req: Request, res: Response, next: NextFunction) => {
+// --- SIGNUP ---
+export const signup = async (req: Request, res: Response) => {
   try {
     const { name, email, password } = req.body;
 
@@ -16,65 +18,78 @@ export const signup = async (req: Request, res: Response, next: NextFunction) =>
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // 3. Create the user
-    const newUser = await User.create({
-      name,
-      email,
-      password: hashedPassword
+    const newUser = await User.create({ 
+      name, 
+      email, 
+      password: hashedPassword 
     });
 
-    // 4. Send response
+    // 4. Generate Token & Set Cookie
+    generateTokenAndSetCookie(newUser._id.toString(), res);
+
+    // 5. Send Response
     res.status(201).json({
-      status: 'success',
-      data: {
-        user: {
-          id: newUser._id,
-          name: newUser.name,
-          email: newUser.email
-        }
+      message: 'User created successfully',
+      user: { 
+        id: newUser._id, 
+        name: newUser.name, 
+        email: newUser.email 
       }
     });
 
   } catch (error) {
-    // Pass to your global error handler or send simple error
-    next(error); 
+    console.error("Signup Error:", error);
+    res.status(500).json({ message: "Error in signup", error });
   }
 };
 
-export const Login = async (req: Request, res: Response, next: NextFunction) => {
+// --- LOGIN ---
+export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
-    // 1. Check if user exists
+
+    // 1. Find User
     const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ message: 'Invalid credentials' });
-    }  
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    // 2. Check Password
+    // We check if user exists AND if password matches in one line for security
+    const isMatch = user && await bcrypt.compare(password, user.password);
 
-    // 2. Check password    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(400).json({ message: "Invalid credentials" });
     }
 
+    // 3. Generate Token & Set Cookie
+    generateTokenAndSetCookie(user._id.toString(), res);
 
-
-    // 3. Send response (you can add JWT token here later)
+    // 4. Send Response
     res.status(200).json({
-      status: 'success',
-      data: {
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email
-        }
+      message: "Login successful",
+      user: { 
+        id: user._id, 
+        name: user.name, 
+        email: user.email 
       }
     });
-    } catch (error) {
-    // Pass to your global error handler or send simple error
-    next(error); 
+
+  } catch (error) {
+    console.error("Login Error:", error);
+    res.status(500).json({ message: "Error in login", error });
   }
-  
 };
+
+// --- LOGOUT ---
+export const logout = (req: Request, res: Response) => {
+  // Clear the cookie by setting it to empty and expiring immediately
+  res.cookie("jwt", "", { 
+    httpOnly: true,
+    expires: new Date(0) 
+  });
+  
+  res.status(200).json({ message: "Logged out successfully" });
+};
+
+// --- CHECK EMAIL ---
 export const checkEmail = async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
@@ -83,6 +98,7 @@ export const checkEmail = async (req: Request, res: Response) => {
     // Returns true if user exists, false if not
     res.status(200).json({ exists: !!user });
   } catch (error) {
+    console.error("Check Email Error:", error);
     res.status(500).json({ message: "Error checking email", error });
   }
 };
