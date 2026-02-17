@@ -63,6 +63,7 @@ app.use(express.urlencoded({ extended: true }));
   // This maps http://localhost:5000/api/auth/signup -> to your signup logic
   app.use("/api/auth", authRoutes);
   app.use("/api/tasks", taskRoutes);
+  app.use("/api/users", authRoutes);
 
   // Global Error Handler (Must be last)
   app.use(globalErrorHandler);
