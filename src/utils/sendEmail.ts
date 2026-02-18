@@ -1,4 +1,4 @@
-import { sendEmail } from "./mail"; // Your existing generic mail sender
+import { sendEmail } from "./mail"; 
 
 interface OtpEmailParams {
   email: string;
@@ -8,10 +8,9 @@ interface OtpEmailParams {
 
 export const sendOtpEmail = async ({ email, name, otp }: OtpEmailParams) => {
   
-  // 🎨 DESIGN YOUR HTML TEMPLATE HERE
 
 
-  // 🚀 SEND THE EMAIL
+  //  SEND THE EMAIL
   await sendEmail({
     to: email,
     subject: "Your Verification Code",

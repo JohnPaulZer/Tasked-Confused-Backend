@@ -7,8 +7,8 @@ export interface IUser extends Document {
   mobile: string;
   gender: string;
   address: string;
-  resetPasswordOtp?: string;     // Optional field
-  resetPasswordExpires?: Date;   // Optional field
+  resetPasswordOtp?: string;     
+  resetPasswordExpires?: Date;   
   // Photos removed as requested
 }
 
@@ -22,5 +22,6 @@ const UserSchema: Schema = new Schema({
   resetPasswordOtp: { type: String },
   resetPasswordExpires: { type: Date },
 }, { timestamps: true });
+
 
 export default mongoose.model<IUser>('User', UserSchema);
