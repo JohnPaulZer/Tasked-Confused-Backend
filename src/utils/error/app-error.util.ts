@@ -1,3 +1,4 @@
+// Custom error class for application-wide error handling with HTTP status codes
 export class AppError extends Error {
   statusCode: number;
   constructor(message: string, statusCode: number) {

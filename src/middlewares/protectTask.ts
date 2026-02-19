@@ -2,30 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import User from "../models/user";
 
-/**
- * PROTECT ROUTE MIDDLEWARE
- * Verifies JWT token and authenticates user before accessing protected routes
- *
- * @param {Request} req - Express request object containing JWT cookie
- * @param {Response} res - Express response object
- * @param {NextFunction} next - Function to proceed to next middleware/route handler
- *
- * @process
- * 1. Extract JWT token from HTTP-only cookie
- * 2. Verify token signature and expiration
- * 3. Decode token to get userId
- * 4. Verify user still exists in database
- * 5. Attach userId to request object for downstream handlers
- * 6. Proceed to next handler or return 401 on failure
- *
- * @throws 401 Unauthorized if:
- *   - No token provided
- *   - Token is invalid or expired
- *   - User not found in database
- *
- * Usage: Apply this middleware to any route requiring authentication
- * Example: router.get('/api/protected', protectRoute, controller)
- */
+// Verify JWT token and authenticate user before accessing protected routes
 const protectRoute = async (
   req: Request,
   res: Response,

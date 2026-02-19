@@ -1,4 +1,4 @@
-import { sendEmail } from "./mail"; 
+import { sendEmail } from "./mail";
 
 interface OtpEmailParams {
   email: string;
@@ -6,10 +6,8 @@ interface OtpEmailParams {
   otp: string;
 }
 
+// Send OTP verification email to user for password reset
 export const sendOtpEmail = async ({ email, name, otp }: OtpEmailParams) => {
-  
-
-
   //  SEND THE EMAIL
   await sendEmail({
     to: email,

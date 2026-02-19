@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Document, Schema } from "mongoose";
 
 export interface IUser extends Document {
   name: string;
@@ -7,21 +7,22 @@ export interface IUser extends Document {
   mobile: string;
   gender: string;
   address: string;
-  resetPasswordOtp?: string;     
-  resetPasswordExpires?: Date;   
-  // Photos removed as requested
+  resetPasswordOtp?: string;
+  resetPasswordExpires?: Date;
 }
 
-const UserSchema: Schema = new Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  mobile: { type: String, default: "" },
-  gender: { type: String, default: "" },
-  address: { type: String, default: "" },
-  resetPasswordOtp: { type: String },
-  resetPasswordExpires: { type: Date },
-}, { timestamps: true });
+const UserSchema: Schema = new Schema(
+  {
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    mobile: { type: String, default: "" },
+    gender: { type: String, default: "" },
+    address: { type: String, default: "" },
+    resetPasswordOtp: { type: String },
+    resetPasswordExpires: { type: Date },
+  },
+  { timestamps: true },
+);
 
-
-export default mongoose.model<IUser>('User', UserSchema);
+export default mongoose.model<IUser>("User", UserSchema);

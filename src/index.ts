@@ -11,17 +11,18 @@ import http from "http";
 import morgan from "morgan";
 import { globalErrorHandler } from "./middlewares/global-error-handler.middleware";
 import { globalRateLimiter } from "./middlewares/limiter.middleware";
-import taskRoutes from './routes/taskRoute';
+import taskRoutes from "./routes/taskRoute";
 
 // dotenv.config();
 
+// Initialize and start Express server with all middleware, routes, and database connection
 const bootstrap = async () => {
   const app = express();
   const PORT = process.env.PORT || 5000;
 
   // --- MIDDLEWARE ---
-app.use(express.json()); 
-app.use(express.urlencoded({ extended: true }));
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
   // 1. CORS Configuration
   // I simplified this to ensure your Frontend (localhost:5173) can connect immediately.
   // The previous strict version would block you if .env wasn't perfect.

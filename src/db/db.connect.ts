@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+
+// Initialize MongoDB connection and configure strict query mode
 export default async function initDB() {
   try {
     mongoose.set("strictQuery", true);
