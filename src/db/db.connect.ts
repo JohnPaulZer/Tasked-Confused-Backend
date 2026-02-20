@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import dns from "dns" ;
+dns.setServers (["8.8.8.8", "1.1.1.1"]);
 
 // Initialize MongoDB connection and configure strict query mode
 export default async function initDB() {
